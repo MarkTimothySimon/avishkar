@@ -5,6 +5,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 import numpy as np
 
+# Page configuration
 st.set_page_config(
     page_title="Commodity Volatility Index",
     page_icon="🧅",
@@ -12,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
+# Custom CSS for modern aesthetics + Mobile fix
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -20,7 +21,11 @@ st.markdown("""
     * {
         font-family: 'Inter', sans-serif;
     }
-
+    
+    /* Prevent sidebar from closing on mobile */
+    [data-testid="stSidebar"] {
+        position: relative !important;
+    }
     
     [data-testid="stSidebar"][aria-expanded="true"] {
         min-width: 300px !important;
@@ -55,28 +60,30 @@ st.markdown("""
     }
     
     .metric-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
         border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
         border: 1px solid rgba(255, 255, 255, 0.18);
         margin-bottom: 1rem;
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease;
     }
     
     .metric-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.5);
+        background: rgba(255, 255, 255, 0.15);
     }
     
     .advisory-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
         border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
         border-left: 6px solid;
+        border: 1px solid rgba(255, 255, 255, 0.18);
         margin: 1rem 0;
     }
     
@@ -148,18 +155,14 @@ st.markdown("""
     h2, h3 {
         color: white !important;
         font-weight: 600 !important;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     }
     
-    /* Make sure headers in cards remain dark */
-    .metric-card h2,
-    .metric-card h3,
-    .advisory-card h2,
-    .advisory-card h3,
-    .info-box h2,
-    .info-box h3 {
-        color: #2d3748 !important;
-        text-shadow: none !important;
+    .metric-card h3 {
+        color: #e0e7ff !important;
+    }
+    
+    .metric-card p {
+        color: #d1d5db !important;
     }
     
     .stButton>button {
@@ -179,11 +182,17 @@ st.markdown("""
     }
     
     .info-box {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
         border-left: 5px solid #667eea;
         padding: 1rem;
         border-radius: 10px;
         margin: 1rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    
+    .info-box h2 {
+        color: white !important;
     }
     
     .risk-indicator {
@@ -210,6 +219,10 @@ st.markdown("""
             padding: 0.4rem 1rem;
         }
         
+        /* Keep sidebar open on mobile */
+        [data-testid="stSidebar"] {
+            transform: none !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -341,14 +354,20 @@ def create_volatility_timeline(df, current_date, days_back=30):
         xaxis_title="Date",
         yaxis_title="Volatility Level",
         height=400,
-        paper_bgcolor='rgba(255, 255, 255, 0.95)',
-        plot_bgcolor='rgba(255, 255, 255, 0.5)',
-        font={'family': 'Inter', 'size': 12},
+        paper_bgcolor='rgba(0, 0, 0, 0.3)',
+        plot_bgcolor='rgba(0, 0, 0, 0.2)',
+        font={'family': 'Inter', 'size': 12, 'color': 'white'},
         hovermode='closest',
         yaxis=dict(
             tickmode='array',
             tickvals=[1, 2, 3],
-            ticktext=['Low', 'Medium', 'High']
+            ticktext=['Low', 'Medium', 'High'],
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        xaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
         ),
         showlegend=True,
         legend=dict(
@@ -356,8 +375,10 @@ def create_volatility_timeline(df, current_date, days_back=30):
             yanchor="bottom",
             y=1.02,
             xanchor="right",
-            x=1
-        )
+            x=1,
+            font={'color': 'white'}
+        ),
+        title_font={'color': 'white'}
     )
     
     return fig
@@ -383,9 +404,9 @@ def create_cvi_trend_chart(df, current_date, days_back=30):
         hovertemplate='<b>CVI Score</b><br>Date: %{x|%b %d}<br>Score: %{y:.4f}<extra></extra>'
     ))
     
-    fig.add_hline(y=0.33, line_dash="dash", line_color="#10b981", 
+    fig.add_hline(y=33, line_dash="dash", line_color="#10b981", 
                   annotation_text="Low Threshold", annotation_position="right")
-    fig.add_hline(y=0.66, line_dash="dash", line_color="#f59e0b", 
+    fig.add_hline(y=66, line_dash="dash", line_color="#f59e0b", 
                   annotation_text="High Threshold", annotation_position="right")
     
     fig.update_layout(
@@ -393,10 +414,19 @@ def create_cvi_trend_chart(df, current_date, days_back=30):
         xaxis_title="Date",
         yaxis_title="Commodity Volatility Index",
         height=400,
-        paper_bgcolor='rgba(255, 255, 255, 0.95)',
-        plot_bgcolor='rgba(255, 255, 255, 0.5)',
-        font={'family': 'Inter', 'size': 12},
-        hovermode='x unified'
+        paper_bgcolor='rgba(0, 0, 0, 0.3)',
+        plot_bgcolor='rgba(0, 0, 0, 0.2)',
+        font={'family': 'Inter', 'size': 12, 'color': 'white'},
+        hovermode='x unified',
+        xaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        title_font={'color': 'white'}
     )
     
     return fig
@@ -415,6 +445,7 @@ def create_momentum_chart(m7, m3, vol7, vol30):
         marker_color=colors,
         text=[f"{v:+.2f}%" for v in values],
         textposition='outside',
+        textfont=dict(color='white'),
         hovertemplate='<b>%{x}</b><br>Value: %{y:.2f}%<extra></extra>'
     ))
     
@@ -423,10 +454,19 @@ def create_momentum_chart(m7, m3, vol7, vol30):
         xaxis_title="Indicator",
         yaxis_title="Percentage (%)",
         height=400,
-        paper_bgcolor='rgba(255, 255, 255, 0.95)',
-        plot_bgcolor='rgba(255, 255, 255, 0.5)',
-        font={'family': 'Inter', 'size': 12},
-        showlegend=False
+        paper_bgcolor='rgba(0, 0, 0, 0.3)',
+        plot_bgcolor='rgba(0, 0, 0, 0.2)',
+        font={'family': 'Inter', 'size': 12, 'color': 'white'},
+        showlegend=False,
+        xaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        title_font={'color': 'white'}
     )
     
     fig.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.5)
@@ -434,77 +474,35 @@ def create_momentum_chart(m7, m3, vol7, vol30):
     return fig
 
 # Main App
-st.markdown("<h1>Farmer's Commodity Market Index</h1>", unsafe_allow_html=True)
+st.markdown("<h1>Farmer's Commodity Volatility Index</h1>", unsafe_allow_html=True)
 
 df = load_predictions()
 
 if df is not None:
-    # Move date selection to main area for mobile compatibility
-    st.markdown("## 📅 Select Analysis Date")
+    # Date selector moved to main area
+    st.markdown("## 📅 Select Date")
     
     min_date = df['date'].min().date()
     max_date = df['date'].max().date()
     
-    # Date navigation buttons for mobile-friendly experience
-    col_nav1, col_nav2, col_nav3, col_nav4, col_nav5 = st.columns([1, 1, 3, 1, 1])
+    col1, col2, col3 = st.columns([2, 2, 3])
     
-    # Initialize session state for selected date
-    if 'selected_date' not in st.session_state:
-        st.session_state.selected_date = min_date
-    
-    with col_nav1:
-        if st.button("⏮️ First", use_container_width=True):
-            st.session_state.selected_date = min_date
-            st.rerun()
-    
-    with col_nav2:
-        if st.button("◀️ Prev", use_container_width=True):
-            current = st.session_state.selected_date
-            if current > min_date:
-                # Find previous available date
-                prev_dates = df[df['date'].dt.date < current]['date'].dt.date
-                if len(prev_dates) > 0:
-                    st.session_state.selected_date = prev_dates.max()
-                    st.rerun()
-    
-    with col_nav3:
+    with col1:
         selected_date = st.date_input(
-            "Choose a date",
-            value=st.session_state.selected_date,
+            "Choose prediction date",
+            value=min_date,
             min_value=min_date,
             max_value=max_date,
             key="date_selector",
-            label_visibility="collapsed"
+            help="Select a date to view market predictions"
         )
-        # Update session state if date changed via calendar
-        if selected_date != st.session_state.selected_date:
-            st.session_state.selected_date = selected_date
     
-    with col_nav4:
-        if st.button("Next ▶️", use_container_width=True):
-            current = st.session_state.selected_date
-            if current < max_date:
-                # Find next available date
-                next_dates = df[df['date'].dt.date > current]['date'].dt.date
-                if len(next_dates) > 0:
-                    st.session_state.selected_date = next_dates.min()
-                    st.rerun()
-    
-    with col_nav5:
-        if st.button("Last ⏭️", use_container_width=True):
-            st.session_state.selected_date = max_date
-            st.rerun()
-    
-    # Use session state value
-    selected_date = st.session_state.selected_date
+    with col2:
+        timeline_days = st.slider("Timeline (days)", 7, 60, 30, key="timeline_slider")
     
     st.markdown("---")
     
     with st.sidebar:
-        st.markdown("### 📊 Timeline View")
-        timeline_days = st.slider("Days to display", 7, 60, 30, key="timeline_slider")
-        
-        st.markdown("---")
         st.markdown("### ℹ️ About CVI")
         st.info("""
         **Commodity Volatility Index**
@@ -583,7 +581,7 @@ if df is not None:
         st.markdown(f"""
             <div class="advisory-card" style="border-left-color: {advisory['color']};">
                 <h2 style="margin: 0; color: {advisory['color']};">{advisory['title']}</h2>
-                <p style="font-size: 1.1rem; color: #2d3748; margin: 1rem 0; line-height: 1.6;">
+                <p style="font-size: 1.1rem; color: white; margin: 1rem 0; line-height: 1.6;">
                     {advisory['message']}
                 </p>
                 <div class="risk-indicator" style="background: {advisory['color']}; color: white;">
@@ -615,26 +613,41 @@ if df is not None:
         st.markdown("### Momentum Interpretation")
         
         if m7 > 3 and m3 > 2:
-            st.success(f"""
-            **Strong Upward Momentum Detected**
-            - 7-day momentum: {m7:+.2f}% (threshold: >3%)
-            - 3-day momentum: {m3:+.2f}% (threshold: >2%)
-            - **Signal:** Prices are rising consistently - Good time to sell if you need to
-            """)
+            st.markdown(f"""
+            <div style='background: rgba(16, 185, 129, 0.1); backdrop-filter: blur(20px); border-left: 4px solid #10b981; 
+            padding: 1rem; border-radius: 10px; margin: 1rem 0; border: 1px solid rgba(16, 185, 129, 0.3);'>
+                <p style='color: #d1fae5; margin: 0; font-size: 0.95rem;'>
+                    <strong style='color: #10b981;'>✓ Strong Upward Momentum Detected</strong><br>
+                    • 7-day momentum: {m7:+.2f}% (threshold: >3%)<br>
+                    • 3-day momentum: {m3:+.2f}% (threshold: >2%)<br>
+                    • <strong>Signal:</strong> Prices are rising consistently - Good time to sell if you need to
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
         elif m7 < -3 and m3 < -2:
-            st.error(f"""
-            **Strong Downward Momentum Detected**
-            - 7-day momentum: {m7:+.2f}% (threshold: <-3%)
-            - 3-day momentum: {m3:+.2f}% (threshold: <-2%)
-            - **Signal:** Prices are falling - Hold if possible, avoid distress sales
-            """)
+            st.markdown(f"""
+            <div style='background: rgba(239, 68, 68, 0.1); backdrop-filter: blur(20px); border-left: 4px solid #ef4444; 
+            padding: 1rem; border-radius: 10px; margin: 1rem 0; border: 1px solid rgba(239, 68, 68, 0.3);'>
+                <p style='color: #fecaca; margin: 0; font-size: 0.95rem;'>
+                    <strong style='color: #ef4444;'>⚠ Strong Downward Momentum Detected</strong><br>
+                    • 7-day momentum: {m7:+.2f}% (threshold: <-3%)<br>
+                    • 3-day momentum: {m3:+.2f}% (threshold: <-2%)<br>
+                    • <strong>Signal:</strong> Prices are falling - Hold if possible, avoid distress sales
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.info(f"""
-            **Stable Price Movement**
-            - 7-day momentum: {m7:+.2f}%
-            - 3-day momentum: {m3:+.2f}%
-            - **Signal:** No strong directional trend - Standard market conditions
-            """)
+            st.markdown(f"""
+            <div style='background: rgba(59, 130, 246, 0.1); backdrop-filter: blur(20px); border-left: 4px solid #3b82f6; 
+            padding: 1rem; border-radius: 10px; margin: 1rem 0; border: 1px solid rgba(59, 130, 246, 0.3);'>
+                <p style='color: #dbeafe; margin: 0; font-size: 0.95rem;'>
+                    <strong style='color: #3b82f6;'>ℹ Stable Price Movement</strong><br>
+                    • 7-day momentum: {m7:+.2f}%<br>
+                    • 3-day momentum: {m3:+.2f}%<br>
+                    • <strong>Signal:</strong> No strong directional trend - Standard market conditions
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
         
         st.markdown("## Volatility Probability Distribution")
         
@@ -649,18 +662,18 @@ if df is not None:
                     mode="gauge+number",
                     value=prob * 100,
                     domain={'x': [0, 1], 'y': [0, 1]},
-                    title={'text': f"{label} Volatility", 'font': {'size': 18, 'color': '#2d3748'}},
-                    number={'suffix': "%", 'font': {'size': 36, 'color': '#2d3748'}},
+                    title={'text': f"{label} Volatility", 'font': {'size': 18, 'color': 'white'}},
+                    number={'suffix': "%", 'font': {'size': 36, 'color': 'white'}},
                     gauge={
-                        'axis': {'range': [None, 100], 'tickwidth': 1},
+                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': 'white'},
                         'bar': {'color': color_map.get(label, '#667eea'), 'thickness': 0.8},
-                        'bgcolor': "white",
+                        'bgcolor': "rgba(0, 0, 0, 0.2)",
                         'borderwidth': 2,
-                        'bordercolor': "#e5e7eb",
+                        'bordercolor': "rgba(255, 255, 255, 0.2)",
                         'steps': [
-                            {'range': [0, 33], 'color': 'rgba(16, 185, 129, 0.1)'},
-                            {'range': [33, 66], 'color': 'rgba(245, 158, 11, 0.1)'},
-                            {'range': [66, 100], 'color': 'rgba(239, 68, 68, 0.1)'}
+                            {'range': [0, 33], 'color': 'rgba(16, 185, 129, 0.2)'},
+                            {'range': [33, 66], 'color': 'rgba(245, 158, 11, 0.2)'},
+                            {'range': [66, 100], 'color': 'rgba(239, 68, 68, 0.2)'}
                         ]
                     }
                 ))
@@ -668,8 +681,8 @@ if df is not None:
                 fig.update_layout(
                     height=280,
                     margin=dict(l=10, r=10, t=50, b=10),
-                    paper_bgcolor='rgba(255, 255, 255, 0.95)',
-                    font={'family': 'Inter'}
+                    paper_bgcolor='rgba(0, 0, 0, 0.3)',
+                    font={'family': 'Inter', 'color': 'white'}
                 )
                 
                 st.plotly_chart(fig, use_container_width=True)
@@ -725,12 +738,3 @@ if df is not None:
         
 else:
     st.error("Failed to load predictions. Please check your data file.")
-
-st.markdown("---")
-st.markdown("""
-    <div style='text-align: center; color: white; padding: 2rem;'>
-        <p style='font-size: 1rem; font-weight: 600;'>Farmer's Commodity Market Intelligence Platform</p>
-        <p style='font-size: 0.9rem; opacity: 0.9;'>Powered by AI & Machine Learning</p>
-        <p style='font-size: 0.8rem; opacity: 0.8;'>Predictions are for informational purposes only. Make decisions based on multiple factors.</p>
-    </div>
-""", unsafe_allow_html=True)
