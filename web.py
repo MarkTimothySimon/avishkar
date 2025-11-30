@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import numpy as np
 
 st.set_page_config(
-    page_title="Commodity Volatility Intelligence",
+    page_title="Commodity Volatility Index",
     page_icon="🧅",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -434,7 +434,7 @@ def create_momentum_chart(m7, m3, vol7, vol30):
     return fig
 
 # Main App
-st.markdown("<h1>Farmer's Commodity Market Intelligence</h1>", unsafe_allow_html=True)
+st.markdown("<h1>Farmer's Commodity Market Index</h1>", unsafe_allow_html=True)
 
 df = load_predictions()
 
