@@ -423,6 +423,62 @@ def create_cvi_trend_chart(df, current_date, days_back=30):
     
     return fig
 
+def create_modal_price_chart(df, current_date, days_back=30):
+    """Create modal price trend chart"""
+    end_date = pd.to_datetime(current_date)
+    start_date = end_date - timedelta(days=days_back)
+    
+    price_df = df[(df['date'] >= start_date) & (df['date'] <= end_date)].copy()
+    
+    # Handle both possible column names
+    if 'Modal_Price' in price_df.columns:
+        price_col = 'Modal_Price'
+    elif 'modal_price' in price_df.columns:
+        price_col = 'modal_price'
+    else:
+        return None
+    
+    fig = go.Figure()
+    
+    fig.add_trace(go.Scatter(
+        x=price_df['date'],
+        y=price_df[price_col],
+        mode='lines+markers',
+        name='Modal Price',
+        line=dict(color='#10b981', width=3),
+        marker=dict(size=8, color='#059669'),
+        fill='tozeroy',
+        fillcolor='rgba(16, 185, 129, 0.2)',
+        hovertemplate='<b>Modal Price</b><br>Date: %{x|%b %d}<br>Price: ₹%{y:.2f}<extra></extra>'
+    ))
+    
+    # Add average line
+    avg_price = price_df[price_col].mean()
+    fig.add_hline(y=avg_price, line_dash="dash", line_color="#f59e0b", 
+                  annotation_text=f"Avg: ₹{avg_price:.2f}", annotation_position="right")
+    
+    fig.update_layout(
+        title=f"{days_back}-Day Modal Price Trend",
+        xaxis_title="Date",
+        yaxis_title="Price (₹)",
+        height=400,
+        paper_bgcolor='rgba(0, 0, 0, 0.3)',
+        plot_bgcolor='rgba(0, 0, 0, 0.2)',
+        font={'family': 'Inter', 'size': 12, 'color': 'white'},
+        hovermode='x unified',
+        xaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white'
+        ),
+        title_font={'color': 'white'}
+    )
+    
+    return fig
+
 def create_momentum_chart(m7, m3, vol7, vol30):
     """Create price momentum comparison chart"""
     fig = go.Figure()
@@ -705,6 +761,12 @@ if df is not None:
             fig_cvi = create_cvi_trend_chart(df, selected_date, timeline_days)
             st.plotly_chart(fig_cvi, use_container_width=True)
         
+        st.markdown("## Price Trend Analysis")
+        fig_modal_price = create_modal_price_chart(df, selected_date, timeline_days)
+        if fig_modal_price:
+            st.plotly_chart(fig_modal_price, use_container_width=True)
+        else:
+            st.warning("Modal price data not available in the dataset.")
         st.markdown("## Risk Level Summary")
         
         col1, col2, col3 = st.columns(3)
