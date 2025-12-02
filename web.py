@@ -542,12 +542,47 @@ if df is not None:
         advisory = get_advisory(volatility, price_movement)
         
         st.markdown(f"<div class='info-box'><h2 style='margin:0;'>Market Analysis for {selected_date.strftime('%B %d, %Y')}</h2></div>", unsafe_allow_html=True)
-        
         st.markdown("## Key Market Signals")
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
             volatility_class = f"{volatility.lower()}-volatility"
+            st.markdown(f"""
+                <div class="metric-card">
+                    <h3 style="margin-top: 0; color: #667eea;">Market Volatility</h3>
+                    <div class='volatility-badge {volatility_class}'>{volatility} Volatility</div>
+                    <p style="color: #718096; margin-top: 1rem; font-size: 1.1rem;">
+                        <strong>CVI Score:</strong> {cvi_score:.4f}
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            price_class = f"price-{price_movement.lower()}"
+            st.markdown(f"""
+                <div class="metric-card">
+                    <h3 style="margin-top: 0; color: #667eea;">Price Direction</h3>
+                    <div class='price-badge {price_class}'>{price_movement}</div>
+                    <p style="color: #718096; margin-top: 1rem; font-size: 1.1rem;">
+                        <strong>7-Day Momentum:</strong> {m7:+.2f}%
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            modal_price = pred.get('Modal_Price', pred.get('modal_price', 0))
+            st.markdown(f"""
+                <div class="metric-card">
+                    <h3 style="margin-top: 0; color: #667eea;">Market Price</h3>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #10b981; margin: 1rem 0;">
+                        ₹{modal_price:.2f}
+                    </div>
+                    <p style="color: #718096; margin-top: 1rem; font-size: 1.1rem;">
+                        <strong>Modal Price</strong> (Most Common)
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
+        
             st.markdown(f"""
                 <div class="metric-card">
                     <h3 style="margin-top: 0; color: #667eea;">Market Volatility</h3>
