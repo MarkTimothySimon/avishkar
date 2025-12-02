@@ -583,28 +583,7 @@ if df is not None:
                 </div>
             """, unsafe_allow_html=True)
         
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h3 style="margin-top: 0; color: #667eea;">Market Volatility</h3>
-                    <div class='volatility-badge {volatility_class}'>{volatility} Volatility</div>
-                    <p style="color: #718096; margin-top: 1rem; font-size: 1.1rem;">
-                        <strong>CVI Score:</strong> {cvi_score:.4f}
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            price_class = f"price-{price_movement.lower()}"
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h3 style="margin-top: 0; color: #667eea;">Price Direction</h3>
-                    <div class='price-badge {price_class}'>{price_movement}</div>
-                    <p style="color: #718096; margin-top: 1rem; font-size: 1.1rem;">
-                        <strong>7-Day Momentum:</strong> {m7:+.2f}%
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-        
+                    
         st.markdown(f"""
             <div class="advisory-card" style="border-left-color: {advisory['color']};">
                 <h2 style="margin: 0; color: {advisory['color']};">{advisory['title']}</h2>
