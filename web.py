@@ -216,11 +216,15 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
+    /* Prevent sidebar from closing on mobile */
+    [data-testid="stSidebar"] {
+        position: relative !important;
+    }
     
-    # [data-testid="stSidebar"][aria-expanded="true"] {
-    #     min-width: 300px !important;
-    #     max-width: 300px !important;
-    # }
+    [data-testid="stSidebar"][aria-expanded="true"] {
+        min-width: 300px !important;
+        max-width: 300px !important;
+    }
     
     /* Make date input more mobile-friendly */
     .stDateInput {
@@ -409,10 +413,7 @@ st.markdown("""
             padding: 0.4rem 1rem;
         }
         
-        /* Keep sidebar open on mobile */
-        [data-testid="stSidebar"] {
-            transform: none !important;
-        }
+      
     }
     </style>
 """, unsafe_allow_html=True)
