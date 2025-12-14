@@ -217,10 +217,10 @@ st.markdown("""
     }
     
     
-    [data-testid="stSidebar"][aria-expanded="true"] {
-        min-width: 300px !important;
-        max-width: 300px !important;
-    }
+    # [data-testid="stSidebar"][aria-expanded="true"] {
+    #     min-width: 300px !important;
+    #     max-width: 300px !important;
+    # }
     
     /* Make date input more mobile-friendly */
     .stDateInput {
