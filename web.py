@@ -216,10 +216,6 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    /* Prevent sidebar from closing on mobile */
-    [data-testid="stSidebar"] {
-        position: relative !important;
-    }
     
     [data-testid="stSidebar"][aria-expanded="true"] {
         min-width: 300px !important;
