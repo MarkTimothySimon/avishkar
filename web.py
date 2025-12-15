@@ -56,7 +56,14 @@ translations = {
         "med_cvi_days": "Med CVI Days",
         "low_cvi_days": "Low CVI Days",
         "about_cvi": "About CVI",
-        "about_text": """**Commodity Volatility Index**
+        "multi_forecast": "Multi-Step Forecast",
+        "forecast_next_days": "Forecast for Next Days",
+        "forecasted_date": "Forecasted Date",
+        "predicted_volatility": "Predicted Volatility",
+        "confidence": "Confidence",
+        "view_details": "View Details",
+        "about_text": """**Commodity Volatility Index**,
+        
             
 Measures market instability:
 - Low: Stable market
@@ -122,6 +129,12 @@ Combined with price direction for better decisions.""",
         "med_cvi_days": "मध्यम सीव्हीआय दिवस",
         "low_cvi_days": "कमी सीव्हीआय दिवस",
         "about_cvi": "सीव्हीआय बद्दल",
+        "multi_forecast": "बहु-चरण अंदाज",
+        "forecast_next_days": "पुढील दिवसांसाठी अंदाज",
+        "forecasted_date": "अंदाजित तारीख",
+        "predicted_volatility": "अंदाजित अस्थिरता",
+        "confidence": "आत्मविश्वास",
+        "view_details": "तपशील पहा",
         "about_text": """**कमोडिटी व्होलॅटिलिटी इंडेक्स**
             
 बाजार अस्थिरता मोजते:
@@ -672,6 +685,18 @@ def create_momentum_chart(m7, m3, vol7, vol30):
     
     return fig
 
+def parse_multi_forecast(multi_next_str):
+    """Parse the multi_next column string into a dictionary"""
+    import ast
+    try:
+        if pd.isna(multi_next_str):
+            return None
+        # Convert string representation to dictionary
+        forecast_dict = ast.literal_eval(multi_next_str)
+        return forecast_dict
+    except:
+        return None
+
 # Main App
 if 'language' not in st.session_state:
     st.session_state.language = "English"
@@ -911,7 +936,114 @@ if not prediction.empty:
     with col2:
         fig_cvi = create_cvi_trend_chart(df, selected_date, timeline_days, t)
         st.plotly_chart(fig_cvi, use_container_width=True)
-    
+
+    # Multi-Step Forecast Section
+    if 'multi_next' in df.columns and pd.notna(pred.get('multi_next')):
+        forecast_data = parse_multi_forecast(pred['multi_next'])
+        
+        if forecast_data:
+            st.markdown(f"## {t['multi_forecast']}")
+            st.markdown(f"### {t['forecast_next_days']}")
+            
+            # Create forecast timeline
+            forecast_dates = sorted(forecast_data.keys())
+            
+            for forecast_date in forecast_dates:
+                forecast_info = forecast_data[forecast_date]
+                f_label = forecast_info['label']
+                f_proba = forecast_info['proba']
+                f_score = forecast_info['score']
+                
+                # Determine which probability corresponds to the label
+                if f_label == 'Low':
+                    confidence = f_proba[0] * 100
+                elif f_label in ['Med', 'Medium']:
+                    confidence = f_proba[1] * 100
+                else:  # High
+                    confidence = f_proba[2] * 100
+                
+                # Color based on forecast label
+                label_colors = {'Low': '#10b981', 'Med': '#f59e0b', 'Medium': '#f59e0b', 'High': '#ef4444'}
+                forecast_color = label_colors.get(f_label, '#6366f1')
+                
+                # Display forecast card
+                col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
+                
+                with col1:
+                    st.markdown(f"""
+                        <div class="metric-card" style="text-align: center; padding: 1rem;">
+                            <p style="color: #a0aec0; margin: 0; font-size: 0.9rem;">{t['forecasted_date']}</p>
+                            <p style="font-size: 1.3rem; font-weight: 600; color: white; margin: 0.5rem 0;">
+                                {pd.to_datetime(forecast_date).strftime('%b %d, %Y')}
+                            </p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                with col2:
+                    volatility_text = t[f_label.lower()] + " " + t['volatility']
+                    st.markdown(f"""
+                        <div class="metric-card" style="text-align: center; padding: 1rem;">
+                            <p style="color: #a0aec0; margin: 0; font-size: 0.9rem;">{t['predicted_volatility']}</p>
+                            <p style="font-size: 1.3rem; font-weight: 700; color: {forecast_color}; margin: 0.5rem 0;">
+                                {volatility_text}
+                            </p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                with col3:
+                    st.markdown(f"""
+                        <div class="metric-card" style="text-align: center; padding: 1rem;">
+                            <p style="color: #a0aec0; margin: 0; font-size: 0.9rem;">{t['cvi_score']}</p>
+                            <p style="font-size: 1.3rem; font-weight: 600; color: white; margin: 0.5rem 0;">
+                                {f_score:.2f}
+                            </p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                with col4:
+                    st.markdown(f"""
+                        <div class="metric-card" style="text-align: center; padding: 1rem;">
+                            <p style="color: #a0aec0; margin: 0; font-size: 0.9rem;">{t['confidence']}</p>
+                            <p style="font-size: 1.3rem; font-weight: 700; color: {forecast_color}; margin: 0.5rem 0;">
+                                {confidence:.1f}%
+                            </p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                # Expander for detailed probabilities
+                with st.expander(f"📊 {t['view_details']} - {pd.to_datetime(forecast_date).strftime('%b %d, %Y')}"):
+                    prob_cols = st.columns(3)
+                    
+                    prob_labels = [t['low_volatility'], t['med_volatility'], t['high_volatility']]
+                    prob_colors = ['#10b981', '#f59e0b', '#ef4444']
+                    
+                    for idx, (prob, label, color) in enumerate(zip(f_proba, prob_labels, prob_colors)):
+                        with prob_cols[idx]:
+                            fig = go.Figure(go.Indicator(
+                                mode="gauge+number",
+                                value=prob * 100,
+                                domain={'x': [0, 1], 'y': [0, 1]},
+                                title={'text': label, 'font': {'size': 14, 'color': 'white'}},
+                                number={'suffix': "%", 'font': {'size': 24, 'color': 'white'}},
+                                gauge={
+                                    'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': 'white'},
+                                    'bar': {'color': color, 'thickness': 0.75},
+                                    'bgcolor': "rgba(0, 0, 0, 0.2)",
+                                    'borderwidth': 2,
+                                    'bordercolor': "rgba(255, 255, 255, 0.2)",
+                                }
+                            ))
+                            
+                            fig.update_layout(
+                                height=200,
+                                margin=dict(l=10, r=10, t=40, b=10),
+                                paper_bgcolor='rgba(0, 0, 0, 0.3)',
+                                font={'family': 'Inter', 'color': 'white'}
+                            )
+                            
+                            st.plotly_chart(fig, use_container_width=True)
+
+
     st.markdown(f"## {t['risk_summary']}")
     
     col1, col2, col3 = st.columns(3)
@@ -946,5 +1078,6 @@ if not prediction.empty:
             </div>
         """, unsafe_allow_html=True)
     
+
 else:
     st.warning("No prediction data available for the selected date.")
