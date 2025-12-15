@@ -76,6 +76,10 @@ translations = {
         "be_cautious": "⚠ Be cautious, maybe wait - Short-term volatility expected",
         "seasonal_risk_stable": "ℹ Seasonal risk exists, but market stable short-term",
         "strong_warning": "⚠ Strong warning - Stagger sales or wait",
+        "calendar_risk": "Calendar Risk",
+        "alert_risk": "Alert Risk (3-7 days)",
+        "calendar_risk_desc":"Shows how risky this date usually is based on season, festivals, and past market patterns.",
+        "alert_risk_desc":"Short-term volatility risk based on recent market trends and predictions.",
         "about_text": """**Commodity Volatility Index**,
         
             
@@ -161,7 +165,11 @@ Combined with price direction for better decisions.""",
         "sell_normally": "✓ सामान्यपणे विका - चांगल्या परिस्थिती",
         "be_cautious": "⚠ सावध रहा, कदाचित प्रतीक्षा करा - अल्पकालीन अस्थिरता अपेक्षित",
         "seasonal_risk_stable": "ℹ हंगामी जोखीम अस्तित्वात आहे, परंतु बाजार अल्पकालीन स्थिर",
-        "strong_warning": "⚠ मजबूत चेतावणी - विक्री टप्प्याटप्प्याने करा किंवा प्रतीक्षा करा",        
+        "strong_warning": "⚠ मजबूत चेतावणी - विक्री टप्प्याटप्प्याने करा किंवा प्रतीक्षा करा",
+        "calendar_risk": "कॅलेंडर जोखीम",
+        "alert_risk": "सतर्कता जोखीम (३-७ दिवस)",
+        "calendar_risk_desc":"हंगाम, सण आणि मागील बाजार पद्धतींवर आधारित ही तारीख सहसा किती धोकादायक असते हे दर्शविते.",
+        "alert_risk_desc":"अलिकडच्या किमतीतील चढउतार आणि अपेक्षित परिस्थितींवर आधारित अल्पकालीन बाजार अनिश्चितता दर्शवते.",
         "about_text": """**कमोडिटी व्होलॅटिलिटी इंडेक्स**
             
 बाजार अस्थिरता मोजते:
@@ -730,8 +738,8 @@ def should_show_forecast(df, selected_date):
         if selected_date is None:
             return False
         sel_date = pd.to_datetime(selected_date).date()
-        start_date = pd.to_datetime("2024-12-13").date()
-        end_date = pd.to_datetime("2025-12-20").date()
+        start_date = pd.to_datetime("2024-12-15").date()
+        end_date = pd.to_datetime("2025-12-22").date()
         return start_date <= sel_date <= end_date
     except Exception:
         return False
@@ -895,22 +903,22 @@ if not prediction.empty:
         
         sel_date = pd.to_datetime(selected_date).date()
 
-        forecast_16 = pd.to_datetime("2025-12-16").date()
-        forecast_20 = pd.to_datetime("2025-12-20").date()
+        forecast_18 = pd.to_datetime("2025-12-18").date()
+        forecast_22 = pd.to_datetime("2025-12-22").date()
 
         selected_dates = []
 
         # From Dec 13 to Dec 16 → show 16 & 20
-        if pd.to_datetime("2025-12-13").date() <= sel_date <= pd.to_datetime("2025-12-16").date():
-            if str(forecast_16) in forecast_data:
-                selected_dates.append(str(forecast_16))
-            if str(forecast_20) in forecast_data:
-                selected_dates.append(str(forecast_20))
+        if pd.to_datetime("2025-12-15").date() <= sel_date <= pd.to_datetime("2025-12-18").date():
+            if str(forecast_18) in forecast_data:
+                selected_dates.append(str(forecast_18))
+            if str(forecast_22) in forecast_data:
+                selected_dates.append(str(forecast_22))
 
         # From Dec 17 to Dec 20 → show only 20
-        elif pd.to_datetime("2025-12-17").date() <= sel_date <= pd.to_datetime("2025-12-20").date():
-            if str(forecast_20) in forecast_data:
-                selected_dates.append(str(forecast_20))
+        elif pd.to_datetime("2025-12-19").date() <= sel_date <= pd.to_datetime("2025-12-22").date():
+            if str(forecast_22) in forecast_data:
+                selected_dates.append(str(forecast_22))
 
         # Only proceed to display forecasts if we have selected dates
         if selected_dates:
@@ -1020,8 +1028,8 @@ if not prediction.empty:
 
     # Determine situation and action
         sel_date = pd.to_datetime(selected_date).date()
-        start_range = pd.to_datetime("2025-12-13").date()
-        end_range = pd.to_datetime("2025-12-20").date()
+        start_range = pd.to_datetime("2025-12-15").date()
+        end_range = pd.to_datetime("2025-12-22").date()
 
         # Only render the Decision Matrix when selected date is between 13-12-2025 and 20-12-2025
         if start_range <= sel_date <= end_range:
@@ -1049,6 +1057,10 @@ if not prediction.empty:
                 st.markdown(f"""
                     <div class="metric-card">
                         <h3 style="margin-top: 0; color: #667eea;">{t['situation']}</h3>
+                        <strong>{t['calendar_risk']}</strong>
+                        <p>{t['calendar_risk_desc']}</p>
+                        <strong>{t['alert_risk']}</strong>
+                        <p>{t['alert_risk_desc']}</p>
                         <p style="font-size: 1.1rem; color: white; margin: 1rem 0;">
                         <strong>{t['calendar_risk']}:</strong> {t[calendar_risk.lower()]}<br>
                         <strong>{t['alert_risk']}:</strong> {t[alert_risk.lower()]}
