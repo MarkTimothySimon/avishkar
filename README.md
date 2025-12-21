@@ -2,6 +2,8 @@
 
 A comprehensive Streamlit-based dashboard for predicting and analyzing commodity price volatility for farmers. This tool provides actionable insights combining calendar risk, market momentum, and short-term forecasts to help farmers make informed selling decisions.
 
+**Note**: This dashboard is for informational purposes. Always consult with local agricultural experts and consider multiple factors before making selling decisions.This is made for Avishkar a research poster competition.
+
 ## Features
 
 ### Multi-Language Support
@@ -191,6 +193,3 @@ Adjust in the custom CSS section:
 - Designed for Indian farmers
 
 
----
-
-**Note**: This dashboard is for informational purposes. Always consult with local agricultural experts and consider multiple factors before making selling decisions.
